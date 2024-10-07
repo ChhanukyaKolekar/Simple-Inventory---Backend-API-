@@ -1,11 +1,9 @@
 # Simple-Inventory---Backend-API-
 
 This API provides functionality for user registration, login, and CRUD operations on inventory items. It leverages JWT (JSON Web Tokens) for authentication and includes caching for efficient data retrieval.
-
-Features
-User registration and authentication
-Item creation, retrieval, updating, and deletion
-ORM queries for interaction with MySQL database 
+User registration and authentication.
+Item creation, retrieval, updating, and deletion.
+ORM queries for interaction with MySQL database.
 The API employs caching to optimize item retrieval. When an item is requested, it first checks the cache before querying the database.
 
 1.User Registration
