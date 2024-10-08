@@ -49,23 +49,25 @@ def login_view(request):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def create_item(self,request):
+def create_item(request):
     data=request.data
     seriliser=ItemsSerilizer(data=data)
     if not seriliser.is_valid():
         return Response(seriliser.errors,status=status.HTTP_400_BAD_REQUEST)
+    
     seriliser.save()
     return Response(seriliser.data,status=status.HTTP_201_CREATED)
 
 
 class Ineventry_ops_APIView(APIView):
-    authentication_classes=[JWTAuthentication]
-    permission_classes=[IsAuthenticated]
+    # authentication_classes=[JWTAuthentication]
+    # permission_classes=[IsAuthenticated]
 
     def get(self,request,pk):
+       
         if cache.get(pk):
             obj=cache.get(pk)
-            # print("Cache Hit ")
+            print("Cache Hit ")
             return Response(obj)
         else:
             try:
@@ -73,25 +75,25 @@ class Ineventry_ops_APIView(APIView):
                 if obj.exists():
                     seriliser=ItemsSerilizer(obj,many=True)
                     cache.set(pk, seriliser.data)
-                    # print("DB Hit ")
+                    print("DB Hit ")
                     return Response(seriliser.data)
-            except Exception:
-                return Response(status=status.HTTP_404_NOT_FOUND)
-        return Response(status=status.HTTP_404_NOT_FOUND)
+            except Exception as error:
+                return Response(f'{error}',status=status.HTTP_404_NOT_FOUND)
+            
+        return Response('Item not found',status=status.HTTP_404_NOT_FOUND)
 
     def put(self,request,pk):
-        data=request.data
-        
-        obj=Items.objects.filter(id=pk)
 
-        if not obj.exists():
+        data=request.data
+        try:
+            obj=Items.objects.get(id=pk)
+            seriliser=ItemsSerilizer(obj,data=data)
+
+            if seriliser.is_valid():
+                seriliser.save()
+                return Response(seriliser.data)
+        except Exception as e:
             return Response('Item not found',status=status.HTTP_404_NOT_FOUND)
-        
-        seriliser=ItemsSerilizer(obj,data=data)
-        if seriliser.is_valid():
-            seriliser.save()
-            return Response(seriliser.data)
-        
         return Response(seriliser.errors)
       
     def delete(self,request,pk):

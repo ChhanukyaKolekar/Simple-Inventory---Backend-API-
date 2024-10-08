@@ -7,3 +7,5 @@ class Items(models.Model):
     description=models.TextField()
     price=models.FloatField()
 
+    def __str_(self):
+        return self.name
