@@ -60,14 +60,14 @@ def create_item(request):
 
 
 class Ineventry_ops_APIView(APIView):
-    # authentication_classes=[JWTAuthentication]
-    # permission_classes=[IsAuthenticated]
+    authentication_classes=[JWTAuthentication]
+    permission_classes=[IsAuthenticated]
 
     def get(self,request,pk):
        
         if cache.get(pk):
             obj=cache.get(pk)
-            print("Cache Hit ")
+            print("Cache Hit")
             return Response(obj)
         else:
             try:
@@ -88,19 +88,22 @@ class Ineventry_ops_APIView(APIView):
         try:
             obj=Items.objects.get(id=pk)
             seriliser=ItemsSerilizer(obj,data=data)
-
+            cache.delete(pk)
             if seriliser.is_valid():
+                
                 seriliser.save()
                 return Response(seriliser.data)
         except Exception as e:
-            return Response('Item not found',status=status.HTTP_404_NOT_FOUND)
+            return Response(f'{e} Item not found',status=status.HTTP_404_NOT_FOUND)
         return Response(seriliser.errors)
       
     def delete(self,request,pk):
 
         obj=Items.objects.filter(id=pk)
+
         if not obj.exists():
             return Response('Item not found',status=status.HTTP_404_NOT_FOUND)
+        cache.delete(pk)
         obj.delete()
         return Response({"Msg": "Deletion Successful"},status=status.HTTP_200_OK)
 
